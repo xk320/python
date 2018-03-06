@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../HTML/.idea/HTML.iml" filepath="$PROJECT_DIR$/../HTML/.idea/HTML.iml" />
+      <module fileurl="file://E:/PycharmProjects/.idea/PycharmProjects.iml" filepath="E:/PycharmProjects/.idea/PycharmProjects.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../operationtools/.idea/operationtools.iml" filepath="$PROJECT_DIR$/../operationtools/.idea/operationtools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python27/.idea/python27.iml" filepath="$PROJECT_DIR$/../python27/.idea/python27.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/python_operat.iml" filepath="$PROJECT_DIR$/.idea/python_operat.iml" />
+    </modules>
+  </component>
+</project>

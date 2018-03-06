@@ -1,0 +1,30 @@
+在python中最有名的ORM框架是SQLAlchemy
+
+一、安装sqlalchemy
+pip install SQLAlchemy
+pip install pymysql
+#由于mysqldb依然不支持py3，所以这里我们用pymysql与sqlalchemy交互
+
+二、Centos7 安装mariadb-server
+ # 安装
+yum -y install mariadb-server
+# 启动
+systemctl start  mariadb.service
+# 设密码
+mysqladmin -uroot -p password
+# 授权
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY PASSWORD '123456' WITH GRANT OPTION;
+# 请缓存
+flush privileges;
+
+三、sqlalchemy基本使用
+Dialect用于和数据API进行交流，根据配置文件的不同调用不同的数据库API，从而实现对数据库的操作，如：
+MySQL-Python
+    mysql+mysqldb://<user>:<password>@<host>[:<port>]/<dbname>
+pymysql
+    mysql+pymysql://<username>:<password>@<host>/<dbname>[?<options>]
+MySQL-Connector
+    mysql+mysqlconnector://<user>:<password>@<host>[:<port>]/<dbname>
+cx_Oracle
+    oracle+cx_oracle://user:pass@host:port/dbname[?key=value&key=value...]
+

@@ -1,0 +1,91 @@
+import datetime
+
+#日期初始化：
+d1 = datetime.datetime(2005, 2, 16)
+d2 = datetime.datetime(2004, 12, 31)
+
+#日期相减：
+print (d1 - d2).days
+starttime = datetime.datetime.now()
+endtime = datetime.datetime.now()
+print (endtime - starttime).seconds
+
+starttime = datetime.datetime.now()
+starttime.year
+starttime.day
+starttime.second
+#上例演示了计算运行时间的例子，以秒进行显示。
+
+#使用timedelta进行加减：
+d1 = datetime.datetime.now()
+#d3 = d1 + datetime.timedelta(days =10)
+d3 = d1 + datetime.timedelta(days =-1)
+
+print str(d3)
+print d3.ctime()
+print d3.strftime('%Y-%m-%d');
+
+#上例演示了计算当前时间向后10天的时间。
+#如果是小时 days 换成 hours
+
+#其本上常用的类有：datetime和timedelta两个。它们之间可以相互加减。
+
+#time , datetime , string 类型互相转换
+#1. string -> time
+time.strptime(publishDate,"%Y-%m-%d %H:%M:%S")
+
+#2. string -> datetime
+datetime.datetime.strptime(publishDate,"%Y-%m-%d %H:%M:%S")
+
+#3. time -> string
+time.strftime("%y-%m-%d",time.localtime())
+
+date = '2007-01-01'
+t = time.strptime(date,"%Y-%m-%d") #struct_time类型
+d = datetime.datetime(date[0], date[1],date[2]) #datetime类型
+
+
+#将日期时间对象转成字符串
+date = time.strftime("%y-%m-%d",d)
+d.strftime('%Y%m%d')
+
+#日期格式化：
+'''
+%a星期的简写。如 星期三为Web
+%A星期的全写。如 星期三为Wednesday
+%b月份的简写。如4月份为Apr
+%B月份的全写。如4月份为April
+%c: 日期时间的字符串表示。（如： 04/07/10 10:43:39）
+%d: 日在这个月中的天数（是这个月的第几天）
+%f: 微秒（范围[0,999999]）
+%H: 小时（24小时制，[0, 23]）
+%I: 小时（12小时制，[0, 11]）
+%j: 日在年中的天数 [001,366]（是当年的第几天）
+%m: 月份（[01,12]）
+%M: 分钟（[00,59]）
+%p: AM或者PM
+%S: 秒（范围为[00,61]，为什么不是[00, 59]，参考python手册~_~）
+%U: 周在当年的周数当年的第几周），星期天作为周的第一天
+%w: 今天在这周的天数，范围为[0, 6]，6表示星期天
+%W: 周在当年的周数（是当年的第几周），星期一作为周的第一天
+%x: 日期字符串（如：04/07/10）
+%X: 时间字符串（如：10:43:39）
+%y: 2个数字表示的年份
+%Y: 4个数字表示的年份
+%z: 与utc时间的间隔 （如果是本地时间，返回空字符串）
+%Z: 时区名称（如果是本地时间，返回空字符串）
+%%: %% => %
+'''
+dt = datetime.datetime.now()
+print '(%Y-%m-%d %H:%M:%S %f): ', dt.strftime('%Y-%m-%d %H:%M:%S %f')
+print '(%Y-%m-%d %H:%M:%S %p): ', dt.strftime('%y-%m-%d %I:%M:%S %p')
+print '%%a: %s ' % dt.strftime('%a')
+print '%%A: %s ' % dt.strftime('%A')
+print '%%b: %s ' % dt.strftime('%b')
+print '%%B: %s ' % dt.strftime('%B')
+print '日期时间%%c: %s ' % dt.strftime('%c')
+print '日期%%x：%s ' % dt.strftime('%x')
+print '时间%%X：%s ' % dt.strftime('%X')
+print '今天是这周的第%s天 ' % dt.strftime('%w')
+print '今天是今年的第%s天 ' % dt.strftime('%j')
+print '今周是今年的第%s周 ' % dt.strftime('%U')

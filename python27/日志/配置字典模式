@@ -1,0 +1,119 @@
+传递给dictConfig()的字典必需包含下列键值：
+    version - 表示模式版本的整数值。目前唯一的有效值为1，但是有这个键允许模式演化，同时保留了向前兼容性。
+        所有其它键都是可选的，但是如果存在，如下述解读。在下面如果提到了‘配置字典’，特殊键'()'将会被检查，以确定是否需
+        要自定义的初始化。如果是，下述用户定义的对象的机制用于创建新实例；否则上下文被用来决定怎样初始化。
+    formatters - 对应的值是个字典，其每一个键都是formatter标识符，每一个值又是个字典，描述了如何配置对应的 Formatter 实例。
+        搜寻配置字典中的format 和 datefmt键，（默认为None），以构造Formatter实例。
+    filters - 对应的值是个字典，其每一个键都是filter标识符，每一个值又是个字典，描述了如何配置对应的 Filter 实例。
+        搜寻配置字典中的name键，（默认为空字符串）以构造logging.Filter实例。
+    handlers - 对应的值是个字典，其每一个键都是handler标识符，每一个值又是个字典，描述了如何配置对应的Handler实例。
+        搜寻配置字典中的下述键：
+        class （必需的）。handler类的完全限定名。
+        level （可选的）。handler的级别。
+        formatter （可选的）。该handler的formatter的标识符。
+        filters （可选的）。该handler的filter的标识符的列表。
+        所有其它键被当作关键字参数传给handler的构造函数。例如，给定如下代码片段：
+            handlers:
+              console:
+                class : logging.StreamHandler
+                formatter: brief
+                level   : INFO
+                filters: [allow_foo]
+                stream  : ext://sys.stdout
+              file:
+                class : logging.handlers.RotatingFileHandler
+                formatter: precise
+                filename: logconfig.log
+                maxBytes: 1024
+                backupCount: 3
+        标识符为console的handler初始化为logging.StreamHandler，使用sys.stdout作为底层的流。标识符为file的handler初始化为
+        logging.handlers.RotatingFileHandler，filename='logconfig.log', maxBytes=1024, backupCount=3为其构造函数的参数。
+    loggers - 对应的值是个字典，其每一个键都是logger的名字，每一个值又是个字典，描述了如何配置对应的Logger实例。
+        搜寻配置字典中的下述键：
+             level （可选的）。logger的级别。
+             propagate （可选的）。logger的传播设置。
+             filters （可选的）。logger的filter的标识符的列表。
+             handlers （可选的）。logger的handler的标识符的列表。
+         指定的logger通过级别、传播、filter和handler来配置。
+    root - 根logger的配置。配置处理和其它logger一样，propagate设定不可用。
+    incremental - 配置是否是当前配置的增量配置。默认值为False，意味着指定的配置取代已存的配置，就和fileConfig()API的语义一样。
+    disable_existing_loggers - 是否禁用已存的logger。该设定模仿了fileConfig()同名参数的行为。如果缺少该参数，默认为True。如果incremental为True，该值被忽略。
+
+增量配置
+    很难为增量配置提供完整的弹性。例如，因为filter和formatter这样的对象是匿名的，一旦建立了配置，就很难在配置的时候去引用这些匿名对象。
+    进一步，一旦建立了配置，在运行期任意修改logger、handler、filter、formatter的对象图并不是特别吸引人；logger和handler的冗余度可以通过设置
+    级别来控制（对于logger还可以设置传播标志位）。在多线程的环境中，以安全的方式任意修改对象图是容易产生问题的；不是不可能，只是好处对于实现的复杂度来说得不偿失。
+    因此，当配置中incremental键值存在且为True，系统会完全的忽略任何的formatters和filters条目，只处理handlers条目中的level设置，以及loggers和root条目中的level和propagate设置。
+    配置可以以序列化的字典通过网络发往套接字监听器。因此，长时间运行的应用的日志冗余度可以随时间修改而不需要重启应用。
+
+对象链接
+    模式描述了一组日志对象 - logger、handler、formatter、filter - 它们在一个对象图中彼此连接。因此模式需要表示对象间的连接。例如，一旦配置好，
+    一个特定的logger会附上一个handler。为了便于讨论，我们定义两个对象的连接中，logger是源头，handler是目的地。在配置好的对象中，这表示logger持有
+    handler的一个引用。为了达到这个目的，在配置字典中每个目的对象都有一个id，独一无二的标识该对象，然后在源对象的配置中使用该id，表示源对象和id表示的目的对象间存在连接。
+        所以拿下面的YAML代码片段为例：
+            formatters:
+              brief:
+                # configuration for formatter with id 'brief' goes here
+              precise:
+                # configuration for formatter with id 'precise' goes here
+            handlers:
+              h1: #This is an id
+               # configuration of handler with id 'h1' goes here
+               formatter: brief
+              h2: #This is another id
+               # configuration of handler with id 'h2' goes here
+               formatter: precise
+            loggers:
+              foo.bar.baz:
+                # other configuration for logger 'foo.bar.baz'
+                handlers: [h1, h2]
+                （注意：这里使用YAML是因为它比对应的Python的字典代码稍微更可读。）
+        logger的id是logger的名字，可以用变成的方式通过这些名字得到对应的logger的引用，例如foo.bar.baz。formatter和filter的id可以是任何的字符串
+        （如上面的brief、precise）且是暂态的，意味着它们只在处理配置字典时有意义，用来决定对象间的连接，一旦配置结束，它们就不存在了。
+        上述片段表示名为foo.bar.baz的logger附有两个handler，分别是id为h1和h2的handler来描述。h1的fotmatter由id为brief的formatter来描述，h2的formatter则是id为precise的formatter。
+
+用户定义的对象
+    该模式支持用户自定义handler、filter和formatter对象。（对于logger不需要不同的实例有不同的类型，所以该配置模式不支持用户定义的logger类。）
+    对象的配置是由字典来具体描述的。某些情况下日志系统可以从上下文推断出如何实例化一个对象，但是当实例化一个用户定义的对象的时候，系统就不知
+    道怎么做了。为了为用户定义的对象的实例化提供完整的弹性，用户需要提供一个‘工厂’——一个可调用对象，调用时以配置字典为参数，返回实例化的对象。
+    这由键'()'及对应的工厂的绝对导入路径来表示。这里是个具体的例子：
+        formatters:
+          brief:
+            format: '%(message)s'
+          default:
+            format: '%(asctime)s %(levelname)-8s %(name)-15s %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+          custom:
+              (): my.package.customFormatterFactory
+              bar: baz
+              spam: 99.9
+              answer: 42
+    上述YAML片段定义了三个formatter。第一个id为brief，是个标准的logging.Formatter实例，带指定的格式化字符串。第二个id为default ，实例化了一个logging.Formatter，
+    带更长的格式化字符串，也明确定义了时间格式。以Python源码来看，formatter brief和default有配置子字典：
+            {
+              'format' : '%(message)s'
+            }
+        和：
+            {
+              'format' : '%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+              'datefmt' : '%Y-%m-%d %H:%M:%S'
+            }
+        且这些字典不需要包含特殊键'()'，初始化从上下文中推断：创建了logging.Formatter的实例。第三个formatter的id为custom，其配置子字典是：
+            {
+              '()' : 'my.package.customFormatterFactory',
+              'bar' : 'baz',
+              'spam' : 99.9,
+              'answer' : 42
+            }
+        它包含了特殊键'()'，意味着要实例化一个用户定义的对象。这种情况下，使用指定的工厂可调用对象。如果它是一个真的可调用对象就直接使用它，
+        否则如果和例子中一样，指明了一个字符串，将通过常规的导入机制来确定真正的可调用对象。配置子字典中剩余的的项目会被当成关键字参数来调用可调用对象。
+            上述例子中，id为custom的formatter会是下面调用的返回值：
+                my.package.customFormatterFactory(bar='baz', spam=99.9, answer=42)
+            使用'()'作为特殊键是因为它不是个合法的关键字参数名，也就不会和调用时的关键字参数的名字冲突。'()'也用来表示对应值是个可调用对象。
+    偶尔需要引用配置中的内部对象。如果配置系统知道这些对象，这就会隐式的完成。logger或者handler中的level值是字符串'DEBUG'，
+    它就会被自动转成logging.DEBUG；而handlers, filters 和 formatter条目中的对象id会解析成合适的目的对象。
+    偶尔配置需要引用外部对象，比如sys.stderr。如果用Python代码来构造配置字典，这是很直接的事，但如果配置是由文本来提供，这就有些麻烦（如JSON, YAML）。
+    在文本文件中，没有标准的方法来区分sys.stderr和字符串'sys.stderr'。为了区分，配置系统会在字符串值中查找特定的特殊前缀，并对其特殊对待。
+        例如，如果配置值为'ext://sys.stderr'，ext://被移除，'sys.stderr'会被用来import。
+    该前缀处理类比于协议处理：和正则表达式^(?P<prefix>[a-z]+)://(?P<suffix>.*)$ 去匹配，如果识别prefix，
+    则用前缀相关的方式来处理suffix部分，处理的结果以替换字符串值。如果不识别prefix，则字符串的在值保持不变。

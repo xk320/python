@@ -1,0 +1,45 @@
+配置函数
+
+下列函数配置日志模块。他们位于loggging.config模块。使用他们是可选的，既可以使用这些函数来配置日志模块，也可以通过调用主
+API（定义logging本身）并定义handler，这些handler声明于logging或者logging.handlers
+
+logging.config.dictConfig(coinfig)
+    从字典中得到日志配置，字典内容描述下面的配置字典模式
+    如果配置过程中发生错误，该函数抛出ValueError,TypeError,AttributeError或者ImportError，以及使用的描述性消息。
+    西面是抛出错误的条件列表（可能不完整）：
+        A level which is not a string or which is a string not corresponding to an actual logging level.
+        propagate不是布尔值。
+        没有对应目的地的标识符
+        在增量调用中发现了不存在的handler标识符
+        无法解析一个内部或者外部的对象
+    Dictconfigurator类完成解析，用于配置的字典传给他的构造函数，该类有个configure()方法。logging.config模块有个可调用的
+    属性dictConfigClass，其初始设为DictConfigurator。可以用自己的实现类替换dictConfigClass的值。
+    dictConfig()调用dictConfigClass传给他指明的字典，然后在返回的对象上调用configure()方法来使得配置生效：
+        def dictConfig(config):
+            dictConfigClass(config).configure()
+         例如，DictConfigurator可以再其__init__()中调用DictConfigurator.__init__()，然后设置自定义前缀，可以用于接下来的
+         configure()调用中。dictConfigClass可以绑定到盖子类，然后可以像默认的、未定制的方式那样调用dictConfig()
+    logging.config.fileConfig(fname, defaults=None, disable_existing_loggers=True)
+        从名为fname的文件中读取configparser格式的日志配置。文件格式描述于配置文件格式。该函数可以从应用中多次调用，允许
+        最终用户可以从各种预先配置好的配置中选择（如果开发者提供了展示配置并装载选择的配置的机制的话）。
+    Parameters:
+        •defaults – 该参数指明了传给ConfigParser的默认值。
+        •disable_existing_loggers – 如果为False，调用此函数时已存的logger被保留。默认值为True以保证老的行为向前兼容。该
+         行为禁用已存的logger，除非它们或者它们的祖先明确的出现在日志配置中。
+
+    logging.config.listen(port=DEFAULT_LOGGING_CONFIG_PORT)
+        在指定的端口起一个socket服务器，以监听新的配置。如果没有指定端口，使用模块默认的DEFAULT_LOGGING_CONFIG_PORT。日
+        志配置以文件形式发送，可以用fileConfig()处理。返回Thread实例，可以在该线程上调用start()来启动服务器，可以在合适
+        的时候join()该线程。调用stopListening()以停止服务器。
+        要向socket发送配置，从配置文件中读入配置，将其以字节流的方式发送至socket，最开始为4字节长的字节流的二进制长度，
+        即struct.pack('>L', n)。
+    注意:
+        因为部分配置会传给eval()，使用该函数可能有安全风险。当该函数只绑定于localhost的socket，也不接受远端机器的连接，
+        调用listen()的进程的帐号就有可能运行不受信任的代码。特别的，如果调用listen()的进程运行于多用户机器，而这些用户彼
+        此并不信任，那么一个恶意用户可以在受害用户的进程中运行本质上来说任意的代码，只需要连接到受害用户的listen() socket
+        ，然后发送配置，其实是攻击者想要在受害者进程中执行的任何代码。如果使用默认端口这尤为容易，就算是用了不同的端口也
+        不算太难。
+
+    logging.config.stopListening
+        停止listen()返回的服务器的监听。典型的在listen()的返回值上调用join()之前调用该函数。
+

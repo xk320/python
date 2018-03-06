@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../operational_training/.idea/operational_training.iml" filepath="$PROJECT_DIR$/../operational_training/.idea/operational_training.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/python27.iml" filepath="$PROJECT_DIR$/.idea/python27.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python_test/.idea/python_test.iml" filepath="$PROJECT_DIR$/../python_test/.idea/python_test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../python高级编程/studypyton/.idea/studypyton.iml" filepath="$PROJECT_DIR$/../python高级编程/studypyton/.idea/studypyton.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../operationtools/.idea/运维工具.iml" filepath="$PROJECT_DIR$/../operationtools/.idea/运维工具.iml" />
+    </modules>
+  </component>
+</project>
